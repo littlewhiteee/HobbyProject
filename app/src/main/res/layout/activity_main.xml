@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@color/pink"
+    android:layout_height="match_parent"
+    tools:context=".MyRecyclerviewProject">
+
+<com.scwang.smartrefresh.layout.SmartRefreshLayout
+    android:layout_gravity="center"
+    android:id="@+id/sf_girl"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:id="@+id/rv_girl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+</com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+</LinearLayout>
