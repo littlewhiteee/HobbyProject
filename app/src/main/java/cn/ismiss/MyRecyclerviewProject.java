@@ -122,14 +122,14 @@ public class MyRecyclerviewProject extends AppCompatActivity {
                 });
     }
 
-    private void bindAdapter(List<GirlBean.DataBean> girlData) {
+    private void bindAdapter(final List<GirlBean.DataBean> girlData) {
         mGirlAdapter = new GirlAdapter(R.layout.item_girl, girlData);
         rvGirl.setAdapter(mGirlAdapter);
         mGirlAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
 
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                Toast.makeText(MyRecyclerviewProject.this, "点击" + position, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyRecyclerviewProject.this,"查看大图",Toast.LENGTH_SHORT).show();
 
             }
         });

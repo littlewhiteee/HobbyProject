@@ -1,5 +1,6 @@
 package cn.ismiss.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -7,7 +8,7 @@ import java.util.List;
  * Created by littlewhite. on 2020/4/16
  * <p/>
  */
-public class GirlBean {
+public class GirlBean implements Serializable {
 
     private int page;
     private int page_count;
@@ -55,7 +56,7 @@ public class GirlBean {
         this.data = data;
     }
 
-    public static class DataBean {
+    public static class DataBean implements Serializable{
         private String _id;
         private String author;
         private String category;
@@ -173,5 +174,25 @@ public class GirlBean {
         public void setImages(List<String> images) {
             this.images = images;
         }
+
+        @Override
+        public String toString() {
+            return "DataBean{" +
+                    "_id='" + _id + '\'' +
+                    ", author='" + author + '\'' +
+                    ", category='" + category + '\'' +
+                    ", createdAt='" + createdAt + '\'' +
+                    ", desc='" + desc + '\'' +
+                    ", likeCounts=" + likeCounts +
+                    ", publishedAt='" + publishedAt + '\'' +
+                    ", stars=" + stars +
+                    ", title='" + title + '\'' +
+                    ", type='" + type + '\'' +
+                    ", url='" + url + '\'' +
+                    ", views=" + views +
+                    ", images=" + images +
+                    '}';
+        }
     }
+
 }
