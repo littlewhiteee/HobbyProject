@@ -39,7 +39,7 @@ import cn.ismiss.bean.GirlBean;
  */
 public class Girl3DViewActivity extends Activity {
 
-    private TagCloudView tagCloudView, tagCloudView2, tagCloudView3, tagCloudView4;
+    private TagCloudView tagCloudView, tagCloudView2, tagCloudView3, tagCloudView4,tagCloudView5;
     private ViewTagsAdapter viewTagsAdapter;
     private int page = 1;
     private GirlBean mGirlBean;
@@ -65,6 +65,7 @@ public class Girl3DViewActivity extends Activity {
         tagCloudView2 = (TagCloudView) findViewById(R.id.tag_cloud_2);
         tagCloudView3 = (TagCloudView) findViewById(R.id.tag_cloud_3);
         tagCloudView4 = (TagCloudView) findViewById(R.id.tag_cloud_4);
+        tagCloudView5 = (TagCloudView) findViewById(R.id.tag_cloud_5);
         initGirlList1(page);
 
         refresh.setOnRefreshListener(new OnRefreshListener() {
@@ -218,7 +219,48 @@ public class Girl3DViewActivity extends Activity {
                                 girlData = mGirlBean.getData();
                                 viewTagsAdapter = new ViewTagsAdapter(girlData);
                                 tagCloudView4.setAdapter(viewTagsAdapter);
+                                Random r = new Random();
+                                int page5 = r.nextInt(allPage) + 1;
+                                initGirlList5(page5);
                                 tagCloudView4.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+                                    @Override
+                                    public void onItemClick(ViewGroup parent, View view, int position) {
+                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+                                    }
+                                });
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                    }
+                });
+    }
+
+    private void initGirlList5(final int page) {
+        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
+                .execute(new StringCallback() {
+
+                    @Override
+                    public void onStart(Request<String, ? extends Request> request) {
+                        super.onStart(request);
+                    }
+
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response.body());
+                            if (jsonObject.getInt("status") == 100) {
+                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
+                                allPage = mGirlBean.getPage_count();
+                                girlData = mGirlBean.getData();
+                                viewTagsAdapter = new ViewTagsAdapter(girlData);
+                                tagCloudView5.setAdapter(viewTagsAdapter);
+                                tagCloudView5.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
                                     @Override
                                     public void onItemClick(ViewGroup parent, View view, int position) {
                                         startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
