@@ -9,7 +9,7 @@
     app:cardCornerRadius="@dimen/dp_10">
 
     <ImageView
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:id="@+id/iv_girl"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

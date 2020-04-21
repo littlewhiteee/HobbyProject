@@ -11,19 +11,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
-import com.lzy.okgo.request.base.Request;
 import com.moxun.tagcloudlib.view.TagCloudView;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -31,6 +28,7 @@ import cn.ismiss.MyRecyclerviewProject;
 import cn.ismiss.R;
 import cn.ismiss.adapter.ViewTagsAdapter;
 import cn.ismiss.bean.GirlBean;
+import cn.ismiss.utils.DBOpenHelper;
 
 /**
  * yupmisss@gmail.com
@@ -39,13 +37,16 @@ import cn.ismiss.bean.GirlBean;
  */
 public class Girl3DViewActivity extends Activity {
 
-    private TagCloudView tagCloudView, tagCloudView2, tagCloudView3, tagCloudView4,tagCloudView5;
+    private TagCloudView tagCloudView, tagCloudView2, tagCloudView3, tagCloudView4, tagCloudView5;
     private ViewTagsAdapter viewTagsAdapter;
     private int page = 1;
     private GirlBean mGirlBean;
     private int allPage;
     private List<GirlBean.DataBean> girlData;
+    private List<String> URLS = new ArrayList<>();
     private SmartRefreshLayout refresh;
+    private int startLine = 0;
+    private int pageSize = 12;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,218 +67,464 @@ public class Girl3DViewActivity extends Activity {
         tagCloudView3 = (TagCloudView) findViewById(R.id.tag_cloud_3);
         tagCloudView4 = (TagCloudView) findViewById(R.id.tag_cloud_4);
         tagCloudView5 = (TagCloudView) findViewById(R.id.tag_cloud_5);
-        initGirlList1(page);
+        QueryMysql(startLine,pageSize);
 
         refresh.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-                initGirlList1(page);
+                QueryMysql(startLine,pageSize);
                 refreshLayout.finishRefresh();
             }
         });
     }
 
-    private void initGirlList1(final int page) {
-        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
-                .execute(new StringCallback() {
+//    private void initGirlList1(final int page) {
+//        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
+//                .execute(new StringCallback() {
+//
+//                    @Override
+//                    public void onStart(Request<String, ? extends Request> request) {
+//                        super.onStart(request);
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Response<String> response) {
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(response.body());
+//                            if (jsonObject.getInt("status") == 100) {
+//                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
+//                                allPage = mGirlBean.getPage_count();
+//                                girlData = mGirlBean.getData();
+//                                viewTagsAdapter = new ViewTagsAdapter(girlData);
+//                                tagCloudView.setAdapter(viewTagsAdapter);
+//                                Random r = new Random();
+//                                int page2 = r.nextInt(allPage) + 1;
+//                                initGirlList2(page2);
+//                                tagCloudView.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+//                                    @Override
+//                                    public void onItemClick(ViewGroup parent, View view, int position) {
+//                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+//                                    }
+//                                });
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Response<String> response) {
+//                        super.onError(response);
+//                    }
+//                });
+//    }
+//
+//    private void initGirlList2(final int page) {
+//        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
+//                .execute(new StringCallback() {
+//
+//                    @Override
+//                    public void onStart(Request<String, ? extends Request> request) {
+//                        super.onStart(request);
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Response<String> response) {
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(response.body());
+//                            if (jsonObject.getInt("status") == 100) {
+//                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
+//                                allPage = mGirlBean.getPage_count();
+//                                girlData = mGirlBean.getData();
+//                                viewTagsAdapter = new ViewTagsAdapter(girlData);
+//                                tagCloudView2.setAdapter(viewTagsAdapter);
+//                                Random r = new Random();
+//                                int page3 = r.nextInt(allPage) + 1;
+//                                initGirlList3(page3);
+//                                tagCloudView2.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+//                                    @Override
+//                                    public void onItemClick(ViewGroup parent, View view, int position) {
+//                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+//                                    }
+//                                });
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Response<String> response) {
+//                        super.onError(response);
+//                    }
+//                });
+//    }
+//
+//    private void initGirlList3(final int page) {
+//        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
+//                .execute(new StringCallback() {
+//
+//                    @Override
+//                    public void onStart(Request<String, ? extends Request> request) {
+//                        super.onStart(request);
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Response<String> response) {
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(response.body());
+//                            if (jsonObject.getInt("status") == 100) {
+//                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
+//                                allPage = mGirlBean.getPage_count();
+//                                girlData = mGirlBean.getData();
+//                                viewTagsAdapter = new ViewTagsAdapter(girlData);
+//                                tagCloudView3.setAdapter(viewTagsAdapter);
+//                                Random r = new Random();
+//                                int page4 = r.nextInt(allPage) + 1;
+//                                initGirlList4(page4);
+//                                tagCloudView3.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+//                                    @Override
+//                                    public void onItemClick(ViewGroup parent, View view, int position) {
+//                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+//                                    }
+//                                });
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Response<String> response) {
+//                        super.onError(response);
+//                    }
+//                });
+//    }
+//
+//    private void initGirlList4(final int page) {
+//        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
+//                .execute(new StringCallback() {
+//
+//                    @Override
+//                    public void onStart(Request<String, ? extends Request> request) {
+//                        super.onStart(request);
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Response<String> response) {
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(response.body());
+//                            if (jsonObject.getInt("status") == 100) {
+//                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
+//                                allPage = mGirlBean.getPage_count();
+//                                girlData = mGirlBean.getData();
+//                                viewTagsAdapter = new ViewTagsAdapter(girlData);
+//                                tagCloudView4.setAdapter(viewTagsAdapter);
+//                                Random r = new Random();
+//                                int page5 = r.nextInt(allPage) + 1;
+//                                initGirlList5(page5);
+//                                tagCloudView4.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+//                                    @Override
+//                                    public void onItemClick(ViewGroup parent, View view, int position) {
+//                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+//                                    }
+//                                });
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Response<String> response) {
+//                        super.onError(response);
+//                    }
+//                });
+//    }
+//
+//    private void initGirlList5(final int page) {
+//        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
+//                .execute(new StringCallback() {
+//
+//                    @Override
+//                    public void onStart(Request<String, ? extends Request> request) {
+//                        super.onStart(request);
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(Response<String> response) {
+//                        try {
+//                            JSONObject jsonObject = new JSONObject(response.body());
+//                            if (jsonObject.getInt("status") == 100) {
+//                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
+//                                allPage = mGirlBean.getPage_count();
+//                                girlData = mGirlBean.getData();
+//                                viewTagsAdapter = new ViewTagsAdapter(girlData);
+//                                tagCloudView5.setAdapter(viewTagsAdapter);
+//                                tagCloudView5.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+//                                    @Override
+//                                    public void onItemClick(ViewGroup parent, View view, int position) {
+//                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+//                                    }
+//                                });
+//                            }
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Response<String> response) {
+//                        super.onError(response);
+//                    }
+//                });
+//    }
 
+    private void QueryMysql(final int startLine, final int pageSize ) {
+        //连接数据库进行操作需要在主线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //连接数据库进行操作需要在主线程操作
+                new Thread(new Runnable() {
                     @Override
-                    public void onStart(Request<String, ? extends Request> request) {
-                        super.onStart(request);
-                    }
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
+                    public void run() {
+                        Connection conn = null;
+                        conn = (Connection) DBOpenHelper.getConn();
+                        String sql = "select url from tb_little_sister LIMIT " + startLine + ',' + pageSize;
+                        Statement st;
                         try {
-                            JSONObject jsonObject = new JSONObject(response.body());
-                            if (jsonObject.getInt("status") == 100) {
-                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
-                                allPage = mGirlBean.getPage_count();
-                                girlData = mGirlBean.getData();
-                                viewTagsAdapter = new ViewTagsAdapter(girlData);
-                                tagCloudView.setAdapter(viewTagsAdapter);
-                                Random r = new Random();
-                                int page2 = r.nextInt(allPage) + 1;
-                                initGirlList2(page2);
-                                tagCloudView.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
-                                    @Override
-                                    public void onItemClick(ViewGroup parent, View view, int position) {
-                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
-                                    }
-                                });
+                            URLS.clear();
+                            st = (Statement) conn.createStatement();
+                            final ResultSet rs = st.executeQuery(sql);
+                            while (rs.next()) {
+                                URLS.add(rs.getString(1));
                             }
-                        } catch (JSONException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    viewTagsAdapter = new ViewTagsAdapter(URLS);
+                                    tagCloudView.setAdapter(viewTagsAdapter);
+                                    Random r = new Random();
+                                    int page2 = r.nextInt(5) + 1;
+                                    int page2StartLine = page2 * pageSize;
+                                    QueryMysql2(page2StartLine,pageSize);
+                                    tagCloudView.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+                                        @Override
+                                        public void onItemClick(ViewGroup parent, View view, int position) {
+                                            startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+                                        }
+                                    });
+                                }
+                            });
+                            st.close();
+                            conn.close();
+                        } catch (SQLException e) {
                             e.printStackTrace();
                         }
                     }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
-                });
+                }).start();
+            }
+        }).start();
     }
-
-    private void initGirlList2(final int page) {
-        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
-                .execute(new StringCallback() {
-
+    private void QueryMysql2(final int startLine, final int pageSize ) {
+        //连接数据库进行操作需要在主线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //连接数据库进行操作需要在主线程操作
+                new Thread(new Runnable() {
                     @Override
-                    public void onStart(Request<String, ? extends Request> request) {
-                        super.onStart(request);
-                    }
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
+                    public void run() {
+                        Connection conn = null;
+                        conn = (Connection) DBOpenHelper.getConn();
+                        String sql = "select url from tb_little_sister LIMIT " + startLine + ',' + pageSize;
+                        Statement st;
                         try {
-                            JSONObject jsonObject = new JSONObject(response.body());
-                            if (jsonObject.getInt("status") == 100) {
-                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
-                                allPage = mGirlBean.getPage_count();
-                                girlData = mGirlBean.getData();
-                                viewTagsAdapter = new ViewTagsAdapter(girlData);
-                                tagCloudView2.setAdapter(viewTagsAdapter);
-                                Random r = new Random();
-                                int page3 = r.nextInt(allPage) + 1;
-                                initGirlList3(page3);
-                                tagCloudView2.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
-                                    @Override
-                                    public void onItemClick(ViewGroup parent, View view, int position) {
-                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
-                                    }
-                                });
+                            URLS.clear();
+                            st = (Statement) conn.createStatement();
+                            final ResultSet rs = st.executeQuery(sql);
+                            while (rs.next()) {
+                                URLS.add(rs.getString(1));
                             }
-                        } catch (JSONException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    viewTagsAdapter = new ViewTagsAdapter(URLS);
+                                    tagCloudView2.setAdapter(viewTagsAdapter);
+                                    Random r = new Random();
+                                    int page3 = r.nextInt(5) + 1;
+                                    int page3StartLine = page3 * pageSize;
+                                    QueryMysql3(page3StartLine,pageSize);
+
+
+                                    tagCloudView2.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+                                        @Override
+                                        public void onItemClick(ViewGroup parent, View view, int position) {
+                                            startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+                                        }
+                                    });
+                                }
+                            });
+                            st.close();
+                            conn.close();
+                        } catch (SQLException e) {
                             e.printStackTrace();
                         }
                     }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
-                });
+                }).start();
+            }
+        }).start();
     }
-
-    private void initGirlList3(final int page) {
-        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
-                .execute(new StringCallback() {
-
+    private void QueryMysql3(final int startLine, final int pageSize ) {
+        //连接数据库进行操作需要在主线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //连接数据库进行操作需要在主线程操作
+                new Thread(new Runnable() {
                     @Override
-                    public void onStart(Request<String, ? extends Request> request) {
-                        super.onStart(request);
-                    }
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
+                    public void run() {
+                        Connection conn = null;
+                        conn = (Connection) DBOpenHelper.getConn();
+                        String sql = "select url from tb_little_sister LIMIT " + startLine + ',' + pageSize;
+                        Statement st;
                         try {
-                            JSONObject jsonObject = new JSONObject(response.body());
-                            if (jsonObject.getInt("status") == 100) {
-                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
-                                allPage = mGirlBean.getPage_count();
-                                girlData = mGirlBean.getData();
-                                viewTagsAdapter = new ViewTagsAdapter(girlData);
-                                tagCloudView3.setAdapter(viewTagsAdapter);
-                                Random r = new Random();
-                                int page4 = r.nextInt(allPage) + 1;
-                                initGirlList4(page4);
-                                tagCloudView3.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
-                                    @Override
-                                    public void onItemClick(ViewGroup parent, View view, int position) {
-                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
-                                    }
-                                });
+                            URLS.clear();
+                            st = (Statement) conn.createStatement();
+                            final ResultSet rs = st.executeQuery(sql);
+                            while (rs.next()) {
+                                URLS.add(rs.getString(1));
                             }
-                        } catch (JSONException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    viewTagsAdapter = new ViewTagsAdapter(URLS);
+                                    tagCloudView3.setAdapter(viewTagsAdapter);
+                                    Random r = new Random();
+                                    int page4 = r.nextInt(5) + 1;
+                                    int page4StartLine = page4 * pageSize;
+                                    QueryMysql4(page4StartLine,pageSize);
+
+
+                                    tagCloudView3.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+                                        @Override
+                                        public void onItemClick(ViewGroup parent, View view, int position) {
+                                            startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+                                        }
+                                    });
+                                }
+                            });
+                            st.close();
+                            conn.close();
+                        } catch (SQLException e) {
                             e.printStackTrace();
                         }
                     }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
-                });
+                }).start();
+            }
+        }).start();
     }
-
-    private void initGirlList4(final int page) {
-        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
-                .execute(new StringCallback() {
-
+    private void QueryMysql4(final int startLine, final int pageSize ) {
+        //连接数据库进行操作需要在主线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //连接数据库进行操作需要在主线程操作
+                new Thread(new Runnable() {
                     @Override
-                    public void onStart(Request<String, ? extends Request> request) {
-                        super.onStart(request);
-                    }
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
+                    public void run() {
+                        Connection conn = null;
+                        conn = (Connection) DBOpenHelper.getConn();
+                        String sql = "select url from tb_little_sister LIMIT " + startLine + ',' + pageSize;
+                        Statement st;
                         try {
-                            JSONObject jsonObject = new JSONObject(response.body());
-                            if (jsonObject.getInt("status") == 100) {
-                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
-                                allPage = mGirlBean.getPage_count();
-                                girlData = mGirlBean.getData();
-                                viewTagsAdapter = new ViewTagsAdapter(girlData);
-                                tagCloudView4.setAdapter(viewTagsAdapter);
-                                Random r = new Random();
-                                int page5 = r.nextInt(allPage) + 1;
-                                initGirlList5(page5);
-                                tagCloudView4.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
-                                    @Override
-                                    public void onItemClick(ViewGroup parent, View view, int position) {
-                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
-                                    }
-                                });
+                            URLS.clear();
+                            st = (Statement) conn.createStatement();
+                            final ResultSet rs = st.executeQuery(sql);
+                            while (rs.next()) {
+                                URLS.add(rs.getString(1));
                             }
-                        } catch (JSONException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    viewTagsAdapter = new ViewTagsAdapter(URLS);
+                                    tagCloudView4.setAdapter(viewTagsAdapter);
+                                    Random r = new Random();
+                                    int page5 = r.nextInt(5) + 1;
+                                    int page5StartLine = page5 * pageSize;
+                                    QueryMysql5(page5StartLine,pageSize);
+
+
+                                    tagCloudView4.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+                                        @Override
+                                        public void onItemClick(ViewGroup parent, View view, int position) {
+                                            startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+                                        }
+                                    });
+                                }
+                            });
+                            st.close();
+                            conn.close();
+                        } catch (SQLException e) {
                             e.printStackTrace();
                         }
                     }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
-                });
+                }).start();
+            }
+        }).start();
     }
-
-    private void initGirlList5(final int page) {
-        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
-                .execute(new StringCallback() {
-
+    private void QueryMysql5(final int startLine, final int pageSize ) {
+        //连接数据库进行操作需要在主线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //连接数据库进行操作需要在主线程操作
+                new Thread(new Runnable() {
                     @Override
-                    public void onStart(Request<String, ? extends Request> request) {
-                        super.onStart(request);
-                    }
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
+                    public void run() {
+                        Connection conn = null;
+                        conn = (Connection) DBOpenHelper.getConn();
+                        String sql = "select url from tb_little_sister LIMIT " + startLine + ',' + pageSize;
+                        Statement st;
                         try {
-                            JSONObject jsonObject = new JSONObject(response.body());
-                            if (jsonObject.getInt("status") == 100) {
-                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
-                                allPage = mGirlBean.getPage_count();
-                                girlData = mGirlBean.getData();
-                                viewTagsAdapter = new ViewTagsAdapter(girlData);
-                                tagCloudView5.setAdapter(viewTagsAdapter);
-                                tagCloudView5.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
-                                    @Override
-                                    public void onItemClick(ViewGroup parent, View view, int position) {
-                                        startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
-                                    }
-                                });
+                            URLS.clear();
+                            st = (Statement) conn.createStatement();
+                            final ResultSet rs = st.executeQuery(sql);
+                            while (rs.next()) {
+                                URLS.add(rs.getString(1));
                             }
-                        } catch (JSONException e) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    viewTagsAdapter = new ViewTagsAdapter(URLS);
+                                    tagCloudView5.setAdapter(viewTagsAdapter);
+                                    Random r = new Random();
+                                    int page2 = r.nextInt(5) + 1;
+                                    int page2StartLine = page2 * pageSize;
+
+
+                                    tagCloudView5.setOnTagClickListener(new TagCloudView.OnTagClickListener() {
+                                        @Override
+                                        public void onItemClick(ViewGroup parent, View view, int position) {
+                                            startActivity(new Intent(Girl3DViewActivity.this, MyRecyclerviewProject.class));
+                                        }
+                                    });
+                                }
+                            });
+                            st.close();
+                            conn.close();
+                        } catch (SQLException e) {
                             e.printStackTrace();
                         }
                     }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
-                });
+                }).start();
+            }
+        }).start();
     }
+
+
+
 
     private long mLastClickTime = 0;
 

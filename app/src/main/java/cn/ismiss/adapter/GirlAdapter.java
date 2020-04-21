@@ -13,7 +13,6 @@ import java.util.List;
 
 import cn.ismiss.R;
 import cn.ismiss.base.MyApp;
-import cn.ismiss.bean.GirlBean;
 import cn.ismiss.utils.ScreenUtils;
 
 /**
@@ -21,18 +20,19 @@ import cn.ismiss.utils.ScreenUtils;
  * Created by littlewhite. on 2020/4/16
  * <p/>
  */
-public class GirlAdapter extends BaseQuickAdapter<GirlBean.DataBean, BaseViewHolder> {
-    public GirlAdapter(int layoutResId, @Nullable List<GirlBean.DataBean> data) {
+public class GirlAdapter extends BaseQuickAdapter<String, BaseViewHolder> {
+    public GirlAdapter(int layoutResId, @Nullable List<String> data) {
         super(layoutResId, data);
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, GirlBean.DataBean item) {
+    protected void convert(BaseViewHolder helper, String item) {
         ViewGroup.LayoutParams params = helper.itemView.findViewById(R.id.iv_girl).getLayoutParams();
         int screenWidth = ScreenUtils.getScreenWidth(mContext);
         params.width = screenWidth / 3;
         params.height = screenWidth / 3 * 5 / 3;
         helper.itemView.findViewById(R.id.iv_girl).setLayoutParams(params);
-        Glide.with(MyApp.getContext()).load(item.getUrl()).into((ImageView) helper.itemView.findViewById(R.id.iv_girl));
+        System.out.println("加载地址"+item);
+        Glide.with(MyApp.getContext()).load(item.trim()).into((ImageView) helper.itemView.findViewById(R.id.iv_girl));
     }
 }
