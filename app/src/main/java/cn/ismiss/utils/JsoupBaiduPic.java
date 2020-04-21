@@ -50,7 +50,7 @@ public class JsoupBaiduPic {
             if (imageURL == null || "".equals(imageURL)) {
                 String defaultURL = "http://qnimg.zowoyoo.com/img/15463/1509533934407.jpg";
                 jsoupImageVO.setUrl(defaultURL);
-                jsoupImageVO.setName("null"+System.currentTimeMillis());
+                jsoupImageVO.setName("null_"+System.currentTimeMillis());
             } else {
                 jsoupImageVO.setUrl(imageURL);
                 jsoupImageVO.setName("pic_"+System.currentTimeMillis());

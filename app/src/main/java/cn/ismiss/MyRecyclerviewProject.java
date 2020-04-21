@@ -295,13 +295,13 @@ public class MyRecyclerviewProject extends AppCompatActivity {
                     if ((conn != null) && (!closed)) {
                         for (i = 0; i < jennie.size(); i++) {
                             ps = (PreparedStatement) conn.prepareStatement(sql);
-                            String id = null;
+                            String id = "ID_"+System.currentTimeMillis();
                             String name = jennie.get(i).getName();
                             String url = jennie.get(i).getUrl();
                             ps.setString(1, id);//第一个参数 name 规则同上
                             ps.setString(2, name);//第二个参数 phone 规则同上
                             ps.setString(3, url);//第三个参数 content 规则同上
-                            //      int result = ps.executeUpdate();//返回1 执行成功
+                            int result = ps.executeUpdate();//返回1 执行成功
                         }
                         conn.close();
                         jsoupPage++;

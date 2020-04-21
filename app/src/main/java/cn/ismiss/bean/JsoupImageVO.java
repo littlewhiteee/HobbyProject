@@ -11,6 +11,16 @@ public class JsoupImageVO {
     private int height;
     private int weight;
     private int size;
+    private int Id;
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
+
     private Date createDate;
     private String sourceName;
     private String fileLocation;
