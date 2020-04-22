@@ -54,7 +54,8 @@ dependencies {
     implementation files('libs/mysql-connector-java-5.1.39-bin.jar')
     //apache StringEscapeUtils爬虫转义,过期了.换下面一个试试
    // implementation 'org.apache.commons:commons-lang3:3.7'
-
     //apache StringEscapeUtils爬虫转义
     implementation 'org.apache.commons:commons-text:1.6'
+    //图片查看器
+    implementation 'com.byc:ImageWatcher:1.1.0'
 }

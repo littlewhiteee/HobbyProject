@@ -16,7 +16,7 @@ public class JsoupBaiduPic {
     public static List<JsoupImageVO> findImage(String hotelName, int page) {
         int number=100;
         String url = "http://image.baidu.com/search/avatarjson?tn=resultjsonavatarnew&ie=utf-8&word=" + hotelName + "&cg=star&pn=" + page * 30 + "&rn="+number+"&itg=0&z=0&fr=&width=&height=&lm=-1&ic=0&s=0&st=-1&gsm=" + Integer.toHexString(page * 30);
-
+        System.out.println("抓取地址:"+url);
         return findImageNoURl(url);
     }
 
