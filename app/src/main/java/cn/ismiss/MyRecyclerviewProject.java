@@ -1,7 +1,5 @@
 package cn.ismiss;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,7 +26,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -36,9 +33,6 @@ import com.lzy.okgo.request.base.Request;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -61,10 +55,8 @@ import byc.imagewatcher.ImageWatcherHelper;
 import cn.ismiss.adapter.GirlAdapter;
 import cn.ismiss.base.BaseActivity;
 import cn.ismiss.bean.GirlBean;
-import cn.ismiss.bean.JsoupImageVO;
 import cn.ismiss.utils.DBOpenHelper;
 import cn.ismiss.utils.GlideSimpleLoader;
-import cn.ismiss.utils.JsoupBaiduPic;
 import cn.ismiss.utils.SpaceItemDecoration;
 import cn.ismiss.view.CustomDotIndexProvider;
 import cn.ismiss.view.CustomLoadingUIProvider;
@@ -185,6 +177,7 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
                 if (haveMore) {
                     /**
+                     * 数据库翻页规则
                      * 0-12
                      * 13-12
                      * 25-12
@@ -202,91 +195,15 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
 
             @Override
             public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-                showDialog();
+                page = 1;
+                haveMore = true;
+                moreUrl.clear();
+                QueryMysql(startLine, pageSize);
                 refreshLayout.finishRefresh(2000);
             }
         });
     }
 
-
-    private void showDialog() {
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-        //  builder1.setIcon(R.drawable.ic_launcher);//在title的左边显示一个图片
-        builder1.setTitle("温馨提示");
-        builder1.setMessage("请问需要爬取新数据还是刷新先有数据");
-        builder1.setPositiveButton("爬取新数据", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int arg1) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        List<JsoupImageVO> jennie = JsoupBaiduPic.findImage("Jennie", jsoupPage);
-                        if (jennie.size() > 0) {
-                            insertUserData(jennie);    //图片地址插入到数据库
-                        } else {
-                            System.out.println("没有抓取到数据");
-                        }
-                    }
-                }).start();
-
-                dialog.dismiss();
-
-            }
-        });
-        builder1.setNegativeButton("刷新现有数据", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int arg1) {
-                page = 1;
-                haveMore = true;
-                moreUrl.clear();
-                QueryMysql(startLine, pageSize);
-                dialog.dismiss();
-            }
-        });
-        builder1.create().show();
-    }
-
-
-    /**
-     * 数据来源干货集中营,小姐姐不符合我的审美,废弃掉
-     *
-     * @param
-     */
-    private void initGirlList(final int page) {
-        OkGo.<String>get("https://gank.io/api/v2/data/category/Girl/type/Girl/page/" + page + "/count/12")
-                .execute(new StringCallback() {
-
-                    @Override
-                    public void onStart(Request<String, ? extends Request> request) {
-                        super.onStart(request);
-                    }
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response.body());
-                            if (jsonObject.getInt("status") == 100) {
-                                mGirlBean = new Gson().fromJson(response.body(), GirlBean.class);
-                                allPage = mGirlBean.getPage_count();
-                                if (page == 1) {
-                                    girlData = mGirlBean.getData();
-                                    // bindAdapter(girlData);
-                                } else {
-                                    //  mGirlAdapter.addData(mGirlBean.getData());
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                    }
-                });
-    }
 
     private void bindAdapter(final List<String> girlData) {
         mGirlAdapter = new GirlAdapter(R.layout.item_girl, girlData);
@@ -524,90 +441,15 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
         }).start();
     }
 
-
-    /**
-     * 插入数据到数据库
-     */
-    private void insertUserData(final List<JsoupImageVO> jennie) {
-        //连接数据库进行操作需要在主线程操作
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showProgress("爬取百度图库第" + jsoupPage + "页");
-            }
-        });
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //连接数据库进行操作需要在主线程操作
-                Connection conn = null;
-                conn = (Connection) DBOpenHelper.getConn();
-                String sql = "INSERT INTO tb_little_sister (id,name,url) VALUES (?,?,?)";
-                try {
-                    boolean closed = conn.isClosed();
-                    if ((conn != null) && (!closed)) {
-                        for (i = 0; i < jennie.size(); i++) {
-                            ps = (PreparedStatement) conn.prepareStatement(sql);
-                            String id = "ID_" + System.currentTimeMillis();
-                            String name = jennie.get(i).getName();
-                            String url = jennie.get(i).getUrl();
-                            ps.setString(1, id);//第一个参数 name 规则同上
-                            ps.setString(2, name);//第二个参数 phone 规则同上
-                            ps.setString(3, url);//第三个参数 content 规则同上
-                            ps.executeUpdate();//返回1 执行成功
-                        }
-                        conn.close();
-                        jsoupPage++;
-                        List<JsoupImageVO> jennie = JsoupBaiduPic.findImage("Jennie", jsoupPage);
-                        if (jennie.size() > 0) {
-                            insertUserData(jennie);
-                        } else {
-                           dismissProgress();
-                        }
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }).start();
+    @Override
+    public void onBackPressed() {
+        if (!iwHelper.handleBackPressed()) {
+            super.onBackPressed();
+        }
     }
-
 
     @Override
     public void onPictureLongPress(ImageView v, final Uri uri, int pos) {
-//      new SheetDialog.Builder(this)
-//                .addSheet("发送给好友", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                })
-//                .addSheet("转载到空间相册", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                })
-//                .addSheet("保存到手机", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        new Thread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                saveToLocal(uri);
-//                            }
-//                        }).start();
-//                        dialog.dismiss();
-//                    }
-//                })
-//                .addSheet("收藏", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                }).create().show();
 
     }
 }
