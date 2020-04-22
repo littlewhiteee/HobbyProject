@@ -106,7 +106,6 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
     private TextView save;
     private TextView cancel;
     private PopupWindow popupWindow;
-    private boolean canView = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -244,15 +243,14 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
         mGirlAdapter.setOnItemLongClickListener(new BaseQuickAdapter.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(BaseQuickAdapter adapter, View view, int position) {
-                showSavePopwindow(URLS.get(position));
-                return true;
+                return false;
             }
         });
     }
 
 
     private void showSavePopwindow(final String url) {
-        canView = false;
+        System.out.println("拿到的url:"+url);
         View view = LayoutInflater.from(MyRecyclerviewProject.this).inflate(R.layout.pop_upload_save, null);
         save = (TextView) view.findViewById(R.id.save);
         cancel = (TextView) view.findViewById(R.id.cancel);
@@ -282,14 +280,12 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
                       saveToLocal(url);
                     }
                 }).start();
-                canView = true;
                 popupWindow.dismiss();
             }
         });
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                canView = true;
                 popupWindow.dismiss();
             }
         });
@@ -450,6 +446,6 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
 
     @Override
     public void onPictureLongPress(ImageView v, final Uri uri, int pos) {
-
+        showSavePopwindow(URLS.get(pos));
     }
 }
