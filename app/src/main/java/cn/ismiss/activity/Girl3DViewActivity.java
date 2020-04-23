@@ -308,7 +308,7 @@ public class Girl3DViewActivity extends BaseActivity implements CheckPermissions
                         }
                         conn.close();
                         jsoupPage++;
-                        List<JsoupImageVO> jennie = JsoupBaiduPic.findImage("Jennie", jsoupPage);
+                        List<JsoupImageVO> jennie = JsoupBaiduPic.findImage(etKey.getText().toString().trim(), jsoupPage);
                         if (jennie.size() > 0) {
                             insertUserData(jennie);
                         } else {

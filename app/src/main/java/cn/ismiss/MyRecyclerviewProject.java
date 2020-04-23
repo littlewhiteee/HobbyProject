@@ -118,7 +118,7 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         initView();
-        initUrl();
+//        initUrl();
         QueryMysql(startLine, pageSize);
 
 
