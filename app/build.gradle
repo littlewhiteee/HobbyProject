@@ -1,17 +1,34 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
 
     defaultConfig {
         applicationId "cn.ismiss"
-        minSdkVersion 19
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+
+        multiDexEnabled true
+        ndk {
+            //选择要添加的对应cpu类型的.so库。
+            abiFilters 'armeabi', 'armeabi-v7a'//,"x86","arm64-v8a"
+        }
+    }
+
+    //使用aar
+    repositories {
+        flatDir {
+            dirs 'libs', '../TEduModule/libs'
+        }
     }
 
     buildTypes {
@@ -37,7 +54,7 @@ dependencies {
     //图片加载器
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     //数据解析
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.code.gson:gson:2.8.6'
     //分页加载
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.2'
     //recyclerview
@@ -53,9 +70,17 @@ dependencies {
     //mysql连接驱动器
     implementation files('libs/mysql-connector-java-5.1.39-bin.jar')
     //apache StringEscapeUtils爬虫转义,过期了.换下面一个试试
-   // implementation 'org.apache.commons:commons-lang3:3.7'
+    // implementation 'org.apache.commons:commons-lang3:3.7'
     //apache StringEscapeUtils爬虫转义
     implementation 'org.apache.commons:commons-text:1.6'
     //图片查看器
     implementation 'com.byc:ImageWatcher:1.1.0'
+    //kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    //腾讯直播
+    implementation project(path: ':TEduModule')
+    //rxjava2
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+    //jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
 }

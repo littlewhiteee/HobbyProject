@@ -6,27 +6,30 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
     <application
         android:name=".base.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/logo"
-        android:usesCleartextTraffic="true"
         android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+        android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
-        <activity android:name=".activity.Girl3DViewActivity">
+        <activity android:name=".activity.LiveActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MyRecyclerviewProject"/>
+        <activity android:name=".activity.MyRecyclerviewProject" />
+        <activity android:name=".activity.TestSQLiteActivity" />
+        <activity
+            android:name=".activity.Girl3DViewActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
 
     </application>
 

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/db_create"
+        android:padding="@dimen/dp_10"
+        android:gravity="center"
+        android:text="创建数据库"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/db_add"
+        android:padding="@dimen/dp_10"
+        android:gravity="center"
+        android:text="插入一条数据到SQLite"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/db_select"
+        android:padding="@dimen/dp_10"
+        android:gravity="center"
+        android:text="查询数据"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/db_update"
+        android:padding="@dimen/dp_10"
+        android:gravity="center"
+        android:text="修改一条数据"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/db_delete"
+        android:padding="@dimen/dp_10"
+        android:gravity="center"
+        android:text="删除一条数据"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/tv_start_live"
+        android:padding="@dimen/dp_10"
+        android:gravity="center"
+        android:text="开始推流"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

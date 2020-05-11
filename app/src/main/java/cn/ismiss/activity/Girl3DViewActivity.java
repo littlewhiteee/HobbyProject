@@ -1,13 +1,9 @@
 package cn.ismiss.activity;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Display;
@@ -19,7 +15,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 
 import com.moxun.tagcloudlib.view.TagCloudView;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -35,13 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import cn.ismiss.MyRecyclerviewProject;
 import cn.ismiss.R;
 import cn.ismiss.adapter.ViewTagsAdapter;
 import cn.ismiss.base.BaseActivity;
 import cn.ismiss.bean.GirlBean;
 import cn.ismiss.bean.JsoupImageVO;
-import cn.ismiss.permissions.CheckPermissionsListener;
 import cn.ismiss.utils.DBOpenHelper;
 import cn.ismiss.utils.JsoupBaiduPic;
 import cn.ismiss.view.MyDialog;
@@ -51,7 +44,7 @@ import cn.ismiss.view.MyDialog;
  * Created by littlewhite. on 2020/4/16
  * <p/>
  */
-public class Girl3DViewActivity extends BaseActivity implements CheckPermissionsListener {
+public class Girl3DViewActivity extends BaseActivity  {
 
     private TagCloudView tagCloudView, tagCloudView2, tagCloudView3, tagCloudView4, tagCloudView5;
     private ViewTagsAdapter viewTagsAdapter;
@@ -65,17 +58,7 @@ public class Girl3DViewActivity extends BaseActivity implements CheckPermissions
     private int pageSize = 12;
     private PreparedStatement ps = null;//操作整合sql语句的对象
     private int jsoupPage = 1;
-    private static final int REQUEST_CODE = 2333;
-    private CheckPermissionsListener mListener;
-    protected final String[] neededPermissions = new String[]{
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.CAMERA
-    };
+
     private EditText etKey;
     private Dialog adminDialog;
 
@@ -89,53 +72,12 @@ public class Girl3DViewActivity extends BaseActivity implements CheckPermissions
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_3d_view);
         initView();
-        askPermissions();
+
     }
 
-    /**
-     * 权限申请
-     */
-    private void askPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(this, neededPermissions, this);
-        }
-    }
 
-    /**
-     * 申请动态权限
-     *
-     * @param activity
-     * @param permissions
-     * @param listener
-     */
-    public void requestPermissions(Activity activity, String[] permissions, CheckPermissionsListener listener) {
-        if (activity == null) return;
-        mListener = listener;
-        List<String> deniedPermissions = findDeniedPermissions(activity, permissions);
-        if (!deniedPermissions.isEmpty()) {
-            ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE);
-        } else {
-            mListener.onGranted();
-        }
-    }
 
-    /**
-     * 查找未通过权限
-     *
-     * @param activity
-     * @param permissions
-     * @return
-     */
-    private List<String> findDeniedPermissions(Activity activity, String... permissions) {
-        List<String> deniedPermissions = new ArrayList<>();
-        for (String permission : permissions) {
-            if (ActivityCompat.checkSelfPermission(activity, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                deniedPermissions.add(permission);
-            }
-        }
-        return deniedPermissions;
-    }
+
 
     private void initView() {
         refresh = (SmartRefreshLayout) findViewById(R.id.refresh);
@@ -608,14 +550,4 @@ public class Girl3DViewActivity extends BaseActivity implements CheckPermissions
         super.onBackPressed();
     }
 
-
-    @Override
-    public void onGranted() {
-
-    }
-
-    @Override
-    public void onDenied(List<String> permissions) {
-        Toast.makeText(this, "权限被禁用，请到设置里打开", Toast.LENGTH_SHORT).show();
-    }
 }

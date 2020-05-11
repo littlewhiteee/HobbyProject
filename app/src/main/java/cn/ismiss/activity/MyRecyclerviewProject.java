@@ -1,4 +1,4 @@
-package cn.ismiss;
+package cn.ismiss.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -52,6 +52,7 @@ import java.util.List;
 
 import byc.imagewatcher.ImageWatcher;
 import byc.imagewatcher.ImageWatcherHelper;
+import cn.ismiss.R;
 import cn.ismiss.adapter.GirlAdapter;
 import cn.ismiss.base.BaseActivity;
 import cn.ismiss.bean.GirlBean;
@@ -159,7 +160,8 @@ public class MyRecyclerviewProject extends BaseActivity implements  ImageWatcher
     }
 
     private void initView() {
-        sfGirl = findViewById(R.id.sf_girl);
+
+                sfGirl = findViewById(R.id.sf_girl);
         rvGirl = findViewById(R.id.rv_girl);
         rvGirl.setLayoutManager(new GridLayoutManager(this, 3));
         rvGirl.addItemDecoration(new SpaceItemDecoration(10, 3));

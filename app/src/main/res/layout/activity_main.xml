@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@color/pink"
     android:layout_height="match_parent"
-    tools:context=".MyRecyclerviewProject">
+    tools:context=".activity.MyRecyclerviewProject">
 
 <com.scwang.smartrefresh.layout.SmartRefreshLayout
     android:layout_gravity="center"
